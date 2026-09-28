@@ -1,0 +1,20 @@
+{
+  "name": "ubisafe-frontend-assignment",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Assignment ubiSafe",
+  "workspaces": [
+    "api",
+    "web"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w api",
+    "dev:web": "npm run dev -w web",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
