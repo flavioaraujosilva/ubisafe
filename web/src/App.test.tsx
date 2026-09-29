@@ -6,6 +6,7 @@ describe('App', () => {
   it('exibe o título da página', () => {
     render(<App />);
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Characters' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'User Management' })).toBeInTheDocument();
+    expect(screen.getByRole('main')).toBeInTheDocument();
   });
 });
