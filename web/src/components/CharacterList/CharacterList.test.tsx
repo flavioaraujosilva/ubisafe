@@ -84,4 +84,79 @@ describe('CharacterList', () => {
       expect(list).toHaveBeenLastCalledWith({ name: '', page: 1, limit: 50 });
     });
   });
+
+  it('abre a confirmação pela lixeira e recarrega a lista depois de excluir', async () => {
+    const list = vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 1, pages: 1, next: null, prev: null },
+      results: [buildCharacter({ id: 1, name: 'Rick Sanchez' })],
+    });
+    vi.spyOn(service, 'deleteCharacter').mockResolvedValue();
+    renderWithQuery(<CharacterList />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete Rick Sanchez' }));
+    expect(screen.getByRole('dialog', { name: 'Delete User' })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(await screen.findByRole('status')).toHaveTextContent('User successfully deleted.');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2));
+  });
+
+  it('volta para a última página quando a atual fica vazia depois de excluir', async () => {
+    let totalPages = 3;
+    const list = vi.spyOn(service, 'listCharacters').mockImplementation(async ({ page = 1 } = {}) => ({
+      info: { count: totalPages * 15, pages: totalPages, next: null, prev: null },
+      results: page <= totalPages ? [buildCharacter({ id: page, name: `Character ${page}` })] : [],
+    }));
+    vi.spyOn(service, 'deleteCharacter').mockImplementation(async () => {
+      totalPages = 2;
+    });
+    renderWithQuery(<CharacterList />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Page 3' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete Character 3' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(await screen.findByRole('cell', { name: 'Character 2' })).toBeInTheDocument();
+    expect(list).toHaveBeenLastCalledWith({ name: '', page: 2, limit: 15 });
+    expect(screen.getByRole('button', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('abre a edição com duplo clique e recarrega a lista depois de salvar', async () => {
+    const list = vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 1, pages: 1, next: null, prev: null },
+      results: [buildCharacter({ id: 1, name: 'Rick Sanchez' })],
+    });
+    const updateSpy = vi
+      .spyOn(service, 'updateCharacterName')
+      .mockResolvedValue(buildCharacter({ id: 1, name: 'Rick C-137' }));
+    renderWithQuery(<CharacterList />);
+
+    await userEvent.dblClick(await screen.findByRole('cell', { name: 'Rick Sanchez' }));
+    const input = screen.getByRole('textbox', { name: 'Name' });
+    await userEvent.clear(input);
+    await userEvent.type(input, 'Rick C-137{Enter}');
+
+    expect(await screen.findByRole('status')).toHaveTextContent('User successfully edited.');
+    expect(updateSpy).toHaveBeenCalledWith(1, 'Rick C-137');
+    await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2));
+  });
+
+  it('abre a edição com Enter na linha sem enviar o formulário junto', async () => {
+    vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 1, pages: 1, next: null, prev: null },
+      results: [buildCharacter({ id: 1, name: 'Rick Sanchez' })],
+    });
+    const updateSpy = vi.spyOn(service, 'updateCharacterName');
+    renderWithQuery(<CharacterList />);
+
+    const row = (await screen.findByRole('cell', { name: 'Rick Sanchez' })).closest('tr')!;
+    row.focus();
+    await userEvent.keyboard('{Enter}');
+
+    expect(screen.getByRole('dialog', { name: 'Edit User' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Rick Sanchez');
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
 });

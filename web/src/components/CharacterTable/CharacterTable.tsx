@@ -1,12 +1,15 @@
 import type { Character } from '../../types/character';
 import { formatDate } from '../../utils/format';
+import { TrashIcon } from '../Icons/Icons';
 import styles from './CharacterTable.module.css';
 
 type CharacterTableProps = {
   characters: Character[];
+  onEdit: (character: Character) => void;
+  onDelete: (character: Character) => void;
 };
 
-export function CharacterTable({ characters }: CharacterTableProps) {
+export function CharacterTable({ characters, onEdit, onDelete }: CharacterTableProps) {
   return (
     <div className={styles.scroll} role="region" aria-label="Users table" tabIndex={0}>
       <table className={styles.table}>
@@ -22,13 +25,33 @@ export function CharacterTable({ characters }: CharacterTableProps) {
         </thead>
         <tbody>
           {characters.map((character) => (
-            <tr key={character.id}>
+            <tr
+              key={character.id}
+              className={styles.row}
+              tabIndex={0}
+              onDoubleClick={() => onEdit(character)}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' || event.target !== event.currentTarget) return;
+                event.preventDefault();
+                onEdit(character);
+              }}
+            >
               <td title={character.name}>{character.name}</td>
               <td>{character.status}</td>
               <td>{character.species}</td>
               <td>{character.episode.length}</td>
               <td title={character.origin.name}>{character.origin.name}</td>
-              <td>{formatDate(character.created)}</td>
+              <td className={styles.lastCell}>
+                {formatDate(character.created)}
+                <button
+                  type="button"
+                  className={styles.deleteButton}
+                  aria-label={`Delete ${character.name}`}
+                  onClick={() => onDelete(character)}
+                >
+                  <TrashIcon />
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

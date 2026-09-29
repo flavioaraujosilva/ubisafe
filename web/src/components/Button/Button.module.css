@@ -7,13 +7,31 @@
   padding: 10px 24px;
   border: 0;
   border-radius: var(--radius-button);
-  background: var(--color-brand);
-  box-shadow: var(--shadow-raised);
-  color: var(--color-text-inverse);
   font-size: 14px;
   font-weight: 700;
   line-height: 1.2;
   cursor: pointer;
+}
+
+.primary,
+.danger {
+  box-shadow: var(--shadow-raised);
+  color: var(--color-text-inverse);
+}
+
+.primary {
+  background: var(--color-brand);
+}
+
+.danger {
+  background: var(--color-danger);
+}
+
+.tertiary {
+  padding: 10px 0;
+  background: none;
+  color: var(--color-brand);
+  text-decoration: underline;
 }
 
 .button:hover {

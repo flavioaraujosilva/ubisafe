@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { api } from './api';
-import { listCharacters } from './characters';
+import { buildCharacter } from '../test/utils';
+import { updateCharacterName, deleteCharacter, listCharacters } from './characters';
 
 const emptyResponse = {
   info: { count: 0, pages: 0, next: null, prev: null },
@@ -45,5 +46,41 @@ describe('listCharacters', () => {
     vi.spyOn(api, 'get').mockRejectedValue(new Error('Network Error'));
 
     await expect(listCharacters()).rejects.toThrow('Network Error');
+  });
+});
+
+describe('updateCharacterName', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('envia o nome sem espaços nas pontas e devolve o personagem atualizado', async () => {
+    const updated = buildCharacter({ id: 1, name: 'Rick C-137' });
+    const patch = vi.spyOn(api, 'patch').mockResolvedValue({ data: updated });
+
+    const result = await updateCharacterName(1, '  Rick C-137 ');
+
+    expect(patch).toHaveBeenCalledWith('/characters/1', { name: 'Rick C-137' });
+    expect(result).toEqual(updated);
+  });
+});
+
+describe('deleteCharacter', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('chama o DELETE do personagem', async () => {
+    const remove = vi.spyOn(api, 'delete').mockResolvedValue({ data: '' });
+
+    await deleteCharacter(7);
+
+    expect(remove).toHaveBeenCalledWith('/characters/7');
+  });
+
+  it('propaga o erro da requisição', async () => {
+    vi.spyOn(api, 'delete').mockRejectedValue(new Error('Request failed with status code 404'));
+
+    await expect(deleteCharacter(999)).rejects.toThrow('404');
   });
 });
