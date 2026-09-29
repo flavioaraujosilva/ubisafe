@@ -20,7 +20,7 @@ export function renderWithQuery(element: ReactElement) {
   return render(element, { wrapper: Providers });
 }
 
-export function buildCharacter(input: Partial<Character> & Pick<Character, 'id' | 'name'>): Character {
+export function buildCharacter(overrides: Partial<Character> & Pick<Character, 'id' | 'name'>): Character {
   return {
     status: 'Alive',
     species: 'Human',
@@ -32,6 +32,6 @@ export function buildCharacter(input: Partial<Character> & Pick<Character, 'id' 
     episode: ['1', '2'],
     url: '',
     created: '2017-11-04T18:48:46.250Z',
-    ...input,
+    ...overrides,
   };
 }

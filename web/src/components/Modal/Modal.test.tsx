@@ -15,8 +15,8 @@ describe('Modal', () => {
   it('abre como diálogo nomeado pelo título', () => {
     renderModal();
 
-    const dialogRef = screen.getByRole('dialog', { name: 'Delete User' });
-    expect(dialogRef).toHaveAttribute('open');
+    const dialog = screen.getByRole('dialog', { name: 'Delete User' });
+    expect(dialog).toHaveAttribute('open');
     expect(screen.getByText('Are you sure?')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
   });
