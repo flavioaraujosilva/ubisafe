@@ -23,4 +23,18 @@ describe('Button', () => {
     expect(handleClick).toHaveBeenCalledOnce();
     expect(screen.getByRole('button')).toHaveAttribute('type', 'submit');
   });
+
+  it('usa a variante primária por padrão e aceita as outras', () => {
+    render(
+      <>
+        <Button>Search</Button>
+        <Button variant="danger">Delete</Button>
+        <Button variant="tertiary">Cancel</Button>
+      </>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Search' }).className).toMatch(/primary/);
+    expect(screen.getByRole('button', { name: 'Delete' }).className).toMatch(/danger/);
+    expect(screen.getByRole('button', { name: 'Cancel' }).className).toMatch(/tertiary/);
+  });
 });
