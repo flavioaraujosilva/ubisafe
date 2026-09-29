@@ -95,4 +95,29 @@ describe('createCharacterRepository', () => {
       expect(original[0]!.name).toBe('Rick Sanchez');
     });
   });
+
+  describe('updateName', () => {
+    it('altera o nome e devolve o personagem atualizado', () => {
+      const repository = createCharacterRepository(characters);
+
+      const updated = repository.updateName(2, 'Morty Jr.');
+
+      expect(updated).toMatchObject({ id: 2, name: 'Morty Jr.' });
+      expect(repository.list({ name: 'morty jr', page: 1, limit: 10 }).results).toHaveLength(1);
+    });
+
+    it('retorna undefined quando o personagem não existe', () => {
+      const repository = createCharacterRepository(characters);
+
+      expect(repository.updateName(999, 'Ninguém')).toBeUndefined();
+    });
+
+    it('não altera a lista original recebida', () => {
+      const repository = createCharacterRepository(characters);
+
+      repository.updateName(1, 'Outro Rick');
+
+      expect(characters[0]!.name).toBe('Rick Sanchez');
+    });
+  });
 });

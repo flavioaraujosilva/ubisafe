@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { characterQuerySchema } from '../src/validations/characters.js';
+import {
+  updateCharacterSchema,
+  characterQuerySchema,
+  characterIdSchema,
+} from '../src/validations/characters.js';
 
 describe('characterQuerySchema', () => {
   it('aplica page 1 e limit 10 por padrão', () => {
@@ -28,5 +32,34 @@ describe('characterQuerySchema', () => {
     ['limit acima do máximo', { limit: '51' }],
   ])('rejeita %s', (_case, query) => {
     expect(characterQuerySchema.safeParse(query).success).toBe(false);
+  });
+});
+
+describe('characterIdSchema', () => {
+  it('converte o id da rota para número', () => {
+    expect(characterIdSchema.parse('42')).toBe(42);
+  });
+
+  it.each(['0', '-1', '1.5', 'abc'])('rejeita o id %s', (id) => {
+    expect(characterIdSchema.safeParse(id).success).toBe(false);
+  });
+});
+
+describe('updateCharacterSchema', () => {
+  it('aceita um nome e remove espaços nas pontas', () => {
+    expect(updateCharacterSchema.parse({ name: '  Rick C-137  ' })).toEqual({ name: 'Rick C-137' });
+  });
+
+  it('ignora campos além do nome', () => {
+    expect(updateCharacterSchema.parse({ name: 'Rick', status: 'Dead' })).toEqual({ name: 'Rick' });
+  });
+
+  it.each([
+    ['nome ausente', {}],
+    ['nome vazio', { name: '   ' }],
+    ['nome que não é texto', { name: 123 }],
+    ['nome acima de 100 caracteres', { name: 'a'.repeat(101) }],
+  ])('rejeita %s', (_case, body) => {
+    expect(updateCharacterSchema.safeParse(body).success).toBe(false);
   });
 });

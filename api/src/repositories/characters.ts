@@ -35,7 +35,15 @@ export function createCharacterRepository(seed: Character[]) {
     };
   }
 
-  return { list };
+  function updateName(id: number, name: string): Character | undefined {
+    const character = characters.find((item) => item.id === id);
+    if (!character) return undefined;
+
+    character.name = name;
+    return character;
+  }
+
+  return { list, updateName };
 }
 
 export type CharacterRepository = ReturnType<typeof createCharacterRepository>;
