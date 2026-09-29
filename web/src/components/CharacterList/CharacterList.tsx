@@ -6,6 +6,7 @@ import { PAGE_SIZE_OPTIONS, ListFooter } from '../ListFooter/ListFooter';
 import { CharacterTable } from '../CharacterTable/CharacterTable';
 import { DeleteCharacterModal } from '../DeleteCharacterModal/DeleteCharacterModal';
 import { EditCharacterModal } from '../EditCharacterModal/EditCharacterModal';
+import styles from './CharacterList.module.css';
 
 export function CharacterList() {
   const [filters, setFilters] = useState<AppliedFilters>({ name: '' });
@@ -37,6 +38,11 @@ export function CharacterList() {
         <p role="status">Loading users...</p>
       ) : isError ? (
         <p role="alert">Could not load users.</p>
+      ) : data.info.count === 0 ? (
+        <div role="status" className={styles.message}>
+          <strong>No users found.</strong>
+          <span>Try another name or status.</span>
+        </div>
       ) : (
         <>
           <CharacterTable

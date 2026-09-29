@@ -37,7 +37,7 @@ describe('CharacterList', () => {
       results: [],
     });
     renderWithQuery(<CharacterList />);
-    await screen.findByRole('table');
+    await screen.findByText('No users found.');
 
     await userEvent.type(screen.getByLabelText('Name'), 'rick');
     await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Status' }), 'Alive');
@@ -158,5 +158,19 @@ describe('CharacterList', () => {
     expect(screen.getByRole('dialog', { name: 'Edit User' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Rick Sanchez');
     expect(updateSpy).not.toHaveBeenCalled();
+  });
+
+  it('mostra o estado vazio sem tabela nem paginação quando não há resultados', async () => {
+    vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 0, pages: 0, next: null, prev: null },
+      results: [],
+    });
+
+    renderWithQuery(<CharacterList />);
+
+    const message = await screen.findByText('No users found.');
+    expect(message.closest('[role="status"]')).toHaveTextContent('No users found.Try another name or status.');
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Pagination' })).not.toBeInTheDocument();
   });
 });
