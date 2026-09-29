@@ -4,3 +4,19 @@ node_modules/
 # Build
 dist/
 build/
+
+# Testes
+coverage/
+
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Sistema e editores
+.DS_Store
+.idea/
+.vscode/
