@@ -102,6 +102,7 @@ describe('CharacterList', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('User successfully deleted.');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole('region', { name: 'Users table' })).toHaveFocus();
   });
 
   it('volta para a última página quando a atual fica vazia depois de excluir', async () => {
@@ -217,5 +218,18 @@ describe('CharacterList', () => {
 
     expect(await screen.findByRole('cell', { name: 'Character 2' })).toBeInTheDocument();
     expect(screen.getByRole('table').closest('[aria-busy]')).toHaveAttribute('aria-busy', 'false');
+  });
+
+  it('não mexe no foco quando a exclusão é cancelada', async () => {
+    vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 1, pages: 1, next: null, prev: null },
+      results: [buildCharacter({ id: 1, name: 'Rick Sanchez' })],
+    });
+    renderWithQuery(<CharacterList />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete Rick Sanchez' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.getByRole('region', { name: 'Users table' })).not.toHaveFocus();
   });
 });

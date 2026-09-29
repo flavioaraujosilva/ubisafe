@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCharacters } from '../../hooks/useCharacters';
 import type { Character } from '../../types/character';
 import { Button } from '../Button/Button';
@@ -15,11 +15,20 @@ export function CharacterList() {
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
   const [characterToEdit, setCharacterToEdit] = useState<Character | null>(null);
   const [characterToDelete, setCharacterToDelete] = useState<Character | null>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
+  const focusTableAfterDelete = useRef(false);
   const { data, isPending, isError, isFetching, isPlaceholderData, refetch } = useCharacters({ ...filters, page, limit: pageSize });
 
   if (data && data.info.pages > 0 && page > data.info.pages) {
     setPage(data.info.pages);
   }
+
+  useEffect(() => {
+    if (characterToDelete || !focusTableAfterDelete.current) return;
+
+    focusTableAfterDelete.current = false;
+    tableRef.current?.focus();
+  }, [characterToDelete]);
 
   function handleFilter(nextFilters: AppliedFilters) {
     setFilters(nextFilters);
@@ -56,6 +65,7 @@ export function CharacterList() {
       ) : (
         <div className={styles.results} aria-busy={isPlaceholderData}>
           <CharacterTable
+            ref={tableRef}
             characters={data.results}
             onEdit={setCharacterToEdit}
             onDelete={setCharacterToDelete}
@@ -72,7 +82,13 @@ export function CharacterList() {
       )}
 
       <EditCharacterModal character={characterToEdit} onClose={() => setCharacterToEdit(null)} />
-      <DeleteCharacterModal character={characterToDelete} onClose={() => setCharacterToDelete(null)} />
+      <DeleteCharacterModal
+        character={characterToDelete}
+        onClose={() => setCharacterToDelete(null)}
+        onDeleted={() => {
+          focusTableAfterDelete.current = true;
+        }}
+      />
     </>
   );
 }
