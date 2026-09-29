@@ -46,4 +46,42 @@ describe('CharacterList', () => {
       expect(list).toHaveBeenLastCalledWith({ name: 'rick', status: 'Alive', page: 1, limit: 15 });
     });
   });
+
+  it('busca a página escolhida e volta para a primeira ao filtrar', async () => {
+    const list = vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 45, pages: 3, next: 2, prev: null },
+      results: [buildCharacter({ id: 1, name: 'Rick Sanchez' })],
+    });
+    renderWithQuery(<CharacterList />);
+    await screen.findByRole('table');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Page 2' }));
+
+    await vi.waitFor(() => {
+      expect(list).toHaveBeenLastCalledWith({ name: '', page: 2, limit: 15 });
+    });
+    expect(screen.getByText(/Showing results/)).toHaveTextContent('16-30 of 45');
+
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Status' }), 'Dead');
+
+    await vi.waitFor(() => {
+      expect(list).toHaveBeenLastCalledWith({ name: '', status: 'Dead', page: 1, limit: 15 });
+    });
+  });
+
+  it('volta para a primeira página ao mudar a quantidade por página', async () => {
+    const list = vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 100, pages: 7, next: 2, prev: null },
+      results: [buildCharacter({ id: 1, name: 'Rick Sanchez' })],
+    });
+    renderWithQuery(<CharacterList />);
+    await screen.findByRole('table');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Page 3' }));
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Users per page' }), '50');
+
+    await vi.waitFor(() => {
+      expect(list).toHaveBeenLastCalledWith({ name: '', page: 1, limit: 50 });
+    });
+  });
 });

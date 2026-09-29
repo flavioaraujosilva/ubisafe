@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getVisiblePages } from './pagination';
+import { getRange, getVisiblePages } from './pagination';
 
 describe('getVisiblePages', () => {
   it('mostra todas as páginas quando cabem no limite', () => {
@@ -20,5 +20,19 @@ describe('getVisiblePages', () => {
 
   it('retorna lista vazia quando não há páginas', () => {
     expect(getVisiblePages(1, 0)).toEqual([]);
+  });
+});
+
+describe('getRange', () => {
+  it('calcula o primeiro e o último item da página', () => {
+    expect(getRange(4, 15, 6748)).toEqual({ start: 46, end: 60 });
+  });
+
+  it('limita o fim ao total na última página', () => {
+    expect(getRange(7, 15, 100)).toEqual({ start: 91, end: 100 });
+  });
+
+  it('retorna zero quando não há itens', () => {
+    expect(getRange(1, 15, 0)).toEqual({ start: 0, end: 0 });
   });
 });

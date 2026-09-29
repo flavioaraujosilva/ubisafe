@@ -5,3 +5,10 @@ export function getVisiblePages(currentPage: number, totalPages: number, max = 8
 
   return Array.from({ length: size }, (_, index) => start + index);
 }
+
+export function getRange(currentPage: number, pageSize: number, totalItems: number) {
+  if (totalItems === 0) return { start: 0, end: 0 };
+
+  const start = (currentPage - 1) * pageSize + 1;
+  return { start, end: Math.min(currentPage * pageSize, totalItems) };
+}
