@@ -8,6 +8,7 @@ export function createCharacterRoutes(repository: CharacterRepository) {
 
   router.get('/', controller.list);
   router.patch('/:id', controller.update);
+  router.delete('/:id', controller.remove);
 
   return router;
 }

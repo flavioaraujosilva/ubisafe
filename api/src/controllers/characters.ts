@@ -56,5 +56,20 @@ export function createCharacterController(repository: CharacterRepository) {
     res.json(character);
   }
 
-  return { list, update };
+  function remove(req: Request, res: Response) {
+    const id = characterIdSchema.safeParse(req.params.id);
+    if (!id.success) {
+      sendInvalidId(res);
+      return;
+    }
+
+    if (!repository.remove(id.data)) {
+      sendNotFound(res);
+      return;
+    }
+
+    res.status(204).end();
+  }
+
+  return { list, update, remove };
 }

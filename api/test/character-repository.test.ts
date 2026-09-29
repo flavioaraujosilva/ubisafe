@@ -120,4 +120,31 @@ describe('createCharacterRepository', () => {
       expect(characters[0]!.name).toBe('Rick Sanchez');
     });
   });
+
+  describe('remove', () => {
+    it('remove o personagem e atualiza o total da listagem', () => {
+      const repository = createCharacterRepository(characters);
+
+      expect(repository.remove(3)).toBe(true);
+
+      const result = repository.list({ page: 1, limit: 10 });
+      expect(result.results.map((p) => p.id)).toEqual([1, 2, 4, 5]);
+      expect(result.info.count).toBe(4);
+    });
+
+    it('retorna false quando o personagem não existe', () => {
+      const repository = createCharacterRepository(characters);
+
+      expect(repository.remove(999)).toBe(false);
+      expect(repository.list({ page: 1, limit: 10 }).info.count).toBe(5);
+    });
+
+    it('não altera a lista original recebida', () => {
+      const repository = createCharacterRepository(characters);
+
+      repository.remove(1);
+
+      expect(characters).toHaveLength(5);
+    });
+  });
 });

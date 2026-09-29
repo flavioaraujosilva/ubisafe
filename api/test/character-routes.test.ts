@@ -92,3 +92,35 @@ describe('PATCH /characters/:id', () => {
     expect(response.body).toMatchObject({ name: 'Rick', status: 'Alive' });
   });
 });
+
+describe('DELETE /characters/:id', () => {
+  it('remove o personagem e ele deixa de aparecer na listagem', async () => {
+    const app = createApp({ characterRepository: createCharacterRepository(initialCharacters) });
+
+    const response = await request(app).delete('/characters/1');
+
+    expect(response.status).toBe(204);
+    expect(response.body).toEqual({});
+
+    const listResponse = await request(app).get('/characters');
+    expect(listResponse.body.info.count).toBe(99);
+    expect(listResponse.body.results[0].id).toBe(2);
+  });
+
+  it('responde 404 ao remover o mesmo personagem duas vezes', async () => {
+    const app = createApp();
+
+    await request(app).delete('/characters/1');
+    const response = await request(app).delete('/characters/1');
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: 'Character not found' });
+  });
+
+  it('responde 400 quando o id é inválido', async () => {
+    const response = await request(createApp()).delete('/characters/abc');
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Invalid id' });
+  });
+});
