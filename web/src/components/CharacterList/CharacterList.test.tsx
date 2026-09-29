@@ -173,4 +173,22 @@ describe('CharacterList', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: 'Pagination' })).not.toBeInTheDocument();
   });
+
+  it('tenta carregar de novo pelo botão de erro', async () => {
+    const list = vi
+      .spyOn(service, 'listCharacters')
+      .mockRejectedValueOnce(new Error('Network Error'))
+      .mockResolvedValue({
+        info: { count: 1, pages: 1, next: null, prev: null },
+        results: [buildCharacter({ id: 1, name: 'Rick Sanchez' })],
+      });
+    renderWithQuery(<CharacterList />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not load users.');
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByRole('cell', { name: 'Rick Sanchez' })).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(list).toHaveBeenCalledTimes(2);
+  });
 });

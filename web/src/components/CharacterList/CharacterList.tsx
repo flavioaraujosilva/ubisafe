@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCharacters } from '../../hooks/useCharacters';
 import type { Character } from '../../types/character';
+import { Button } from '../Button/Button';
 import { CharacterFilters, type AppliedFilters } from '../CharacterFilters/CharacterFilters';
 import { PAGE_SIZE_OPTIONS, ListFooter } from '../ListFooter/ListFooter';
 import { CharacterTable } from '../CharacterTable/CharacterTable';
@@ -14,7 +15,7 @@ export function CharacterList() {
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
   const [characterToEdit, setCharacterToEdit] = useState<Character | null>(null);
   const [characterToDelete, setCharacterToDelete] = useState<Character | null>(null);
-  const { data, isPending, isError } = useCharacters({ ...filters, page, limit: pageSize });
+  const { data, isPending, isError, isFetching, refetch } = useCharacters({ ...filters, page, limit: pageSize });
 
   if (data && data.info.pages > 0 && page > data.info.pages) {
     setPage(data.info.pages);
@@ -37,7 +38,13 @@ export function CharacterList() {
       {isPending ? (
         <p role="status">Loading users...</p>
       ) : isError ? (
-        <p role="alert">Could not load users.</p>
+        <div role="alert" className={styles.message}>
+          <strong>Could not load users.</strong>
+          <span>Check your connection and try again.</span>
+          <Button className={styles.retry} onClick={() => refetch()} disabled={isFetching}>
+            Try again
+          </Button>
+        </div>
       ) : data.info.count === 0 ? (
         <div role="status" className={styles.message}>
           <strong>No users found.</strong>
