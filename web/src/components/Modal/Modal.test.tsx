@@ -59,4 +59,13 @@ describe('Modal', () => {
     await userEvent.click(screen.getByRole('dialog'));
     expect(handleClose).toHaveBeenCalledOnce();
   });
+
+  it('avisa o fechamento quando o navegador fecha o diálogo aberto', () => {
+    const handleClose = vi.fn();
+    renderModal({ onClose: handleClose });
+
+    screen.getByRole('dialog').dispatchEvent(new Event('close'));
+
+    expect(handleClose).toHaveBeenCalledOnce();
+  });
 });
