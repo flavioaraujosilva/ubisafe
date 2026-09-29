@@ -19,6 +19,7 @@ describe('CharacterList', () => {
     renderWithQuery(<CharacterList />);
 
     expect(screen.getByRole('status')).toHaveTextContent('Loading users...');
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(await screen.findByRole('cell', { name: 'Rick Sanchez' })).toBeInTheDocument();
     expect(list).toHaveBeenCalledWith({ name: '', page: 1, limit: 15 });
   });
@@ -190,5 +191,31 @@ describe('CharacterList', () => {
     expect(await screen.findByRole('cell', { name: 'Rick Sanchez' })).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(list).toHaveBeenCalledTimes(2);
+  });
+
+  it('mantém a tabela atual marcada como ocupada enquanto troca de página', async () => {
+    let finishPageTwo: () => void = () => {};
+    vi.spyOn(service, 'listCharacters').mockImplementation(({ page = 1 } = {}) => {
+      const response = {
+        info: { count: 30, pages: 2, next: null, prev: null },
+        results: [buildCharacter({ id: page, name: `Character ${page}` })],
+      };
+      if (page === 1) return Promise.resolve(response);
+      return new Promise((resolve) => {
+        finishPageTwo = () => resolve(response);
+      });
+    });
+    renderWithQuery(<CharacterList />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Page 2' }));
+
+    const table = screen.getByRole('table');
+    expect(table.closest('[aria-busy]')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('cell', { name: 'Character 1' })).toBeInTheDocument();
+
+    finishPageTwo();
+
+    expect(await screen.findByRole('cell', { name: 'Character 2' })).toBeInTheDocument();
+    expect(screen.getByRole('table').closest('[aria-busy]')).toHaveAttribute('aria-busy', 'false');
   });
 });

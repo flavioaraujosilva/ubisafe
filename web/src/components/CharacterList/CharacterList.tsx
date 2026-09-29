@@ -15,7 +15,7 @@ export function CharacterList() {
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
   const [characterToEdit, setCharacterToEdit] = useState<Character | null>(null);
   const [characterToDelete, setCharacterToDelete] = useState<Character | null>(null);
-  const { data, isPending, isError, isFetching, refetch } = useCharacters({ ...filters, page, limit: pageSize });
+  const { data, isPending, isError, isFetching, isPlaceholderData, refetch } = useCharacters({ ...filters, page, limit: pageSize });
 
   if (data && data.info.pages > 0 && page > data.info.pages) {
     setPage(data.info.pages);
@@ -36,7 +36,10 @@ export function CharacterList() {
       <CharacterFilters onFilter={handleFilter} />
 
       {isPending ? (
-        <p role="status">Loading users...</p>
+        <div role="status" className={styles.message}>
+          <span className={styles.spinner} aria-hidden="true" />
+          <span>Loading users...</span>
+        </div>
       ) : isError ? (
         <div role="alert" className={styles.message}>
           <strong>Could not load users.</strong>
@@ -51,7 +54,7 @@ export function CharacterList() {
           <span>Try another name or status.</span>
         </div>
       ) : (
-        <>
+        <div className={styles.results} aria-busy={isPlaceholderData}>
           <CharacterTable
             characters={data.results}
             onEdit={setCharacterToEdit}
@@ -65,7 +68,7 @@ export function CharacterList() {
             onPageChange={setPage}
             onPageSizeChange={changePageSize}
           />
-        </>
+        </div>
       )}
 
       <EditCharacterModal character={characterToEdit} onClose={() => setCharacterToEdit(null)} />
