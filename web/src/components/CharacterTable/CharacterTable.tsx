@@ -1,3 +1,4 @@
+import type { Ref } from 'react';
 import type { Character } from '../../types/character';
 import { formatDate } from '../../utils/format';
 import { TrashIcon } from '../Icons/Icons';
@@ -7,11 +8,12 @@ type CharacterTableProps = {
   characters: Character[];
   onEdit: (character: Character) => void;
   onDelete: (character: Character) => void;
+  ref?: Ref<HTMLDivElement>;
 };
 
-export function CharacterTable({ characters, onEdit, onDelete }: CharacterTableProps) {
+export function CharacterTable({ characters, onEdit, onDelete, ref }: CharacterTableProps) {
   return (
-    <div className={styles.scroll} role="region" aria-label="Users table" tabIndex={0}>
+    <div ref={ref} className={styles.scroll} role="region" aria-label="Users table" tabIndex={0}>
       <table className={styles.table}>
         <thead>
           <tr>

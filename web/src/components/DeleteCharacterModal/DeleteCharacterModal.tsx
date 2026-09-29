@@ -9,9 +9,10 @@ import styles from './DeleteCharacterModal.module.css';
 type DeleteCharacterModalProps = {
   character: Character | null;
   onClose: () => void;
+  onDeleted?: () => void;
 };
 
-export function DeleteCharacterModal({ character, onClose }: DeleteCharacterModalProps) {
+export function DeleteCharacterModal({ character, onClose, onDeleted }: DeleteCharacterModalProps) {
   const { mutate, isPending } = useDeleteCharacter();
   const { showToast } = useToast();
 
@@ -19,7 +20,10 @@ export function DeleteCharacterModal({ character, onClose }: DeleteCharacterModa
     if (!character) return;
 
     mutate(character.id, {
-      onSuccess: () => showToast('success', 'User successfully deleted.'),
+      onSuccess: () => {
+        showToast('success', 'User successfully deleted.');
+        onDeleted?.();
+      },
       onError: () => showToast('error', 'Error deleting user.'),
       onSettled: onClose,
     });

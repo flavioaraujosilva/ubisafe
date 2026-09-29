@@ -19,6 +19,7 @@ describe('CharacterList', () => {
     renderWithQuery(<CharacterList />);
 
     expect(screen.getByRole('status')).toHaveTextContent('Loading users...');
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(await screen.findByRole('cell', { name: 'Rick Sanchez' })).toBeInTheDocument();
     expect(list).toHaveBeenCalledWith({ name: '', page: 1, limit: 15 });
   });
@@ -37,7 +38,7 @@ describe('CharacterList', () => {
       results: [],
     });
     renderWithQuery(<CharacterList />);
-    await screen.findByRole('table');
+    await screen.findByText('No users found.');
 
     await userEvent.type(screen.getByLabelText('Name'), 'rick');
     await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Status' }), 'Alive');
@@ -101,6 +102,7 @@ describe('CharacterList', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('User successfully deleted.');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole('region', { name: 'Users table' })).toHaveFocus();
   });
 
   it('volta para a última página quando a atual fica vazia depois de excluir', async () => {
@@ -158,5 +160,76 @@ describe('CharacterList', () => {
     expect(screen.getByRole('dialog', { name: 'Edit User' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Rick Sanchez');
     expect(updateSpy).not.toHaveBeenCalled();
+  });
+
+  it('mostra o estado vazio sem tabela nem paginação quando não há resultados', async () => {
+    vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 0, pages: 0, next: null, prev: null },
+      results: [],
+    });
+
+    renderWithQuery(<CharacterList />);
+
+    const message = await screen.findByText('No users found.');
+    expect(message.closest('[role="status"]')).toHaveTextContent('No users found.Try another name or status.');
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Pagination' })).not.toBeInTheDocument();
+  });
+
+  it('tenta carregar de novo pelo botão de erro', async () => {
+    const list = vi
+      .spyOn(service, 'listCharacters')
+      .mockRejectedValueOnce(new Error('Network Error'))
+      .mockResolvedValue({
+        info: { count: 1, pages: 1, next: null, prev: null },
+        results: [buildCharacter({ id: 1, name: 'Rick Sanchez' })],
+      });
+    renderWithQuery(<CharacterList />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not load users.');
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByRole('cell', { name: 'Rick Sanchez' })).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(list).toHaveBeenCalledTimes(2);
+  });
+
+  it('mantém a tabela atual marcada como ocupada enquanto troca de página', async () => {
+    let finishPageTwo: () => void = () => {};
+    vi.spyOn(service, 'listCharacters').mockImplementation(({ page = 1 } = {}) => {
+      const response = {
+        info: { count: 30, pages: 2, next: null, prev: null },
+        results: [buildCharacter({ id: page, name: `Character ${page}` })],
+      };
+      if (page === 1) return Promise.resolve(response);
+      return new Promise((resolve) => {
+        finishPageTwo = () => resolve(response);
+      });
+    });
+    renderWithQuery(<CharacterList />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Page 2' }));
+
+    const table = screen.getByRole('table');
+    expect(table.closest('[aria-busy]')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('cell', { name: 'Character 1' })).toBeInTheDocument();
+
+    finishPageTwo();
+
+    expect(await screen.findByRole('cell', { name: 'Character 2' })).toBeInTheDocument();
+    expect(screen.getByRole('table').closest('[aria-busy]')).toHaveAttribute('aria-busy', 'false');
+  });
+
+  it('não mexe no foco quando a exclusão é cancelada', async () => {
+    vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 1, pages: 1, next: null, prev: null },
+      results: [buildCharacter({ id: 1, name: 'Rick Sanchez' })],
+    });
+    renderWithQuery(<CharacterList />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete Rick Sanchez' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.getByRole('region', { name: 'Users table' })).not.toHaveFocus();
   });
 });

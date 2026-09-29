@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCharacters } from '../../hooks/useCharacters';
 import type { Character } from '../../types/character';
+import { Button } from '../Button/Button';
 import { CharacterFilters, type AppliedFilters } from '../CharacterFilters/CharacterFilters';
 import { PAGE_SIZE_OPTIONS, ListFooter } from '../ListFooter/ListFooter';
 import { CharacterTable } from '../CharacterTable/CharacterTable';
 import { DeleteCharacterModal } from '../DeleteCharacterModal/DeleteCharacterModal';
 import { EditCharacterModal } from '../EditCharacterModal/EditCharacterModal';
+import styles from './CharacterList.module.css';
 
 export function CharacterList() {
   const [filters, setFilters] = useState<AppliedFilters>({ name: '' });
@@ -13,11 +15,20 @@ export function CharacterList() {
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
   const [characterToEdit, setCharacterToEdit] = useState<Character | null>(null);
   const [characterToDelete, setCharacterToDelete] = useState<Character | null>(null);
-  const { data, isPending, isError } = useCharacters({ ...filters, page, limit: pageSize });
+  const tableRef = useRef<HTMLDivElement>(null);
+  const focusTableAfterDelete = useRef(false);
+  const { data, isPending, isError, isFetching, isPlaceholderData, refetch } = useCharacters({ ...filters, page, limit: pageSize });
 
   if (data && data.info.pages > 0 && page > data.info.pages) {
     setPage(data.info.pages);
   }
+
+  useEffect(() => {
+    if (characterToDelete || !focusTableAfterDelete.current) return;
+
+    focusTableAfterDelete.current = false;
+    tableRef.current?.focus();
+  }, [characterToDelete]);
 
   function handleFilter(nextFilters: AppliedFilters) {
     setFilters(nextFilters);
@@ -34,12 +45,27 @@ export function CharacterList() {
       <CharacterFilters onFilter={handleFilter} />
 
       {isPending ? (
-        <p role="status">Loading users...</p>
+        <div role="status" className={styles.message}>
+          <span className={styles.spinner} aria-hidden="true" />
+          <span>Loading users...</span>
+        </div>
       ) : isError ? (
-        <p role="alert">Could not load users.</p>
+        <div role="alert" className={styles.message}>
+          <strong>Could not load users.</strong>
+          <span>Check your connection and try again.</span>
+          <Button className={styles.retry} onClick={() => refetch()} disabled={isFetching}>
+            Try again
+          </Button>
+        </div>
+      ) : data.info.count === 0 ? (
+        <div role="status" className={styles.message}>
+          <strong>No users found.</strong>
+          <span>Try another name or status.</span>
+        </div>
       ) : (
-        <>
+        <div className={styles.results} aria-busy={isPlaceholderData}>
           <CharacterTable
+            ref={tableRef}
             characters={data.results}
             onEdit={setCharacterToEdit}
             onDelete={setCharacterToDelete}
@@ -52,11 +78,17 @@ export function CharacterList() {
             onPageChange={setPage}
             onPageSizeChange={changePageSize}
           />
-        </>
+        </div>
       )}
 
       <EditCharacterModal character={characterToEdit} onClose={() => setCharacterToEdit(null)} />
-      <DeleteCharacterModal character={characterToDelete} onClose={() => setCharacterToDelete(null)} />
+      <DeleteCharacterModal
+        character={characterToDelete}
+        onClose={() => setCharacterToDelete(null)}
+        onDeleted={() => {
+          focusTableAfterDelete.current = true;
+        }}
+      />
     </>
   );
 }
