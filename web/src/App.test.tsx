@@ -1,12 +1,23 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
+import * as service from './services/characters';
+import { renderWithQuery } from './test/utils';
 
 describe('App', () => {
-  it('exibe o título da página', () => {
-    render(<App />);
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('exibe o título e a listagem de personagens', async () => {
+    vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 0, pages: 0, next: null, prev: null },
+      results: [],
+    });
+
+    renderWithQuery(<App />);
 
     expect(screen.getByRole('heading', { level: 1, name: 'User Management' })).toBeInTheDocument();
-    expect(screen.getByRole('main')).toBeInTheDocument();
+    expect(await screen.findByRole('table')).toBeInTheDocument();
   });
 });
