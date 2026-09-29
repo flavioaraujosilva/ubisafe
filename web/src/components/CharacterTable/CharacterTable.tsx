@@ -1,12 +1,14 @@
 import type { Character } from '../../types/character';
 import { formatDate } from '../../utils/format';
+import { TrashIcon } from '../Icons/Icons';
 import styles from './CharacterTable.module.css';
 
 type CharacterTableProps = {
   characters: Character[];
+  onDelete: (character: Character) => void;
 };
 
-export function CharacterTable({ characters }: CharacterTableProps) {
+export function CharacterTable({ characters, onDelete }: CharacterTableProps) {
   return (
     <div className={styles.scroll} role="region" aria-label="Users table" tabIndex={0}>
       <table className={styles.table}>
@@ -28,7 +30,17 @@ export function CharacterTable({ characters }: CharacterTableProps) {
               <td>{character.species}</td>
               <td>{character.episode.length}</td>
               <td title={character.origin.name}>{character.origin.name}</td>
-              <td>{formatDate(character.created)}</td>
+              <td className={styles.lastCell}>
+                {formatDate(character.created)}
+                <button
+                  type="button"
+                  className={styles.deleteButton}
+                  aria-label={`Delete ${character.name}`}
+                  onClick={() => onDelete(character)}
+                >
+                  <TrashIcon />
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

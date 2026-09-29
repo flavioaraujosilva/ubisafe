@@ -38,3 +38,47 @@
   line-height: 17px;
   color: var(--color-text);
 }
+
+.table tbody tr:hover {
+  background: var(--color-interaction);
+}
+
+.table .lastCell {
+  position: relative;
+  padding-right: 56px;
+}
+
+.deleteButton {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 100px;
+  background: var(--color-interaction);
+  color: var(--color-brand);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-50%);
+}
+
+.table tbody tr:hover .deleteButton,
+.deleteButton:focus-visible {
+  opacity: 1;
+}
+
+.deleteButton:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: -2px;
+}
+
+@media (hover: none) {
+  .deleteButton {
+    opacity: 1;
+  }
+}

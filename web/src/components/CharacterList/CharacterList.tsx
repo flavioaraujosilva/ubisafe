@@ -1,14 +1,21 @@
 import { useState } from 'react';
 import { useCharacters } from '../../hooks/useCharacters';
+import type { Character } from '../../types/character';
 import { CharacterFilters, type AppliedFilters } from '../CharacterFilters/CharacterFilters';
 import { PAGE_SIZE_OPTIONS, ListFooter } from '../ListFooter/ListFooter';
 import { CharacterTable } from '../CharacterTable/CharacterTable';
+import { DeleteCharacterModal } from '../DeleteCharacterModal/DeleteCharacterModal';
 
 export function CharacterList() {
   const [filters, setFilters] = useState<AppliedFilters>({ name: '' });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
-  const { data, isPending, isError } = useCharacters({ ...filters, page: page, limit: pageSize });
+  const [characterToDelete, setCharacterToDelete] = useState<Character | null>(null);
+  const { data, isPending, isError } = useCharacters({ ...filters, page, limit: pageSize });
+
+  if (data && data.info.pages > 0 && page > data.info.pages) {
+    setPage(data.info.pages);
+  }
 
   function handleFilter(nextFilters: AppliedFilters) {
     setFilters(nextFilters);
@@ -30,7 +37,7 @@ export function CharacterList() {
         <p role="alert">Could not load users.</p>
       ) : (
         <>
-          <CharacterTable characters={data.results} />
+          <CharacterTable characters={data.results} onDelete={setCharacterToDelete} />
           <ListFooter
             currentPage={page}
             totalPages={data.info.pages}
@@ -41,6 +48,8 @@ export function CharacterList() {
           />
         </>
       )}
+
+      <DeleteCharacterModal character={characterToDelete} onClose={() => setCharacterToDelete(null)} />
     </>
   );
 }

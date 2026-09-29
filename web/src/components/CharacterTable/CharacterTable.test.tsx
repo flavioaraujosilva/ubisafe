@@ -1,11 +1,12 @@
 import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
 import { buildCharacter } from '../../test/utils';
 import { CharacterTable } from './CharacterTable';
 
 describe('CharacterTable', () => {
   it('exibe o cabeçalho com as colunas do design', () => {
-    render(<CharacterTable characters={[]} />);
+    render(<CharacterTable characters={[]} onDelete={vi.fn()} />);
 
     const columns = screen.getAllByRole('columnheader').map((column) => column.textContent);
     expect(columns).toEqual(['Name', 'Status', 'Specie', 'Episodes', 'Origin', 'Created at']);
@@ -25,7 +26,7 @@ describe('CharacterTable', () => {
       }),
     ];
 
-    render(<CharacterTable characters={characters} />);
+    render(<CharacterTable characters={characters} onDelete={vi.fn()} />);
 
     const [, first, second] = screen.getAllByRole('row');
     expect(within(first!).getAllByRole('cell').map((c) => c.textContent)).toEqual([
@@ -47,8 +48,18 @@ describe('CharacterTable', () => {
   });
 
   it('permite rolar a tabela pelo teclado em telas pequenas', () => {
-    render(<CharacterTable characters={[]} />);
+    render(<CharacterTable characters={[]} onDelete={vi.fn()} />);
 
     expect(screen.getByRole('region', { name: 'Users table' })).toHaveAttribute('tabindex', '0');
+  });
+
+  it('pede a exclusão do personagem pela lixeira da linha', async () => {
+    const handleDelete = vi.fn();
+    const morty = buildCharacter({ id: 2, name: 'Morty Smith' });
+    render(<CharacterTable characters={[buildCharacter({ id: 1, name: 'Rick Sanchez' }), morty]} onDelete={handleDelete} />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Delete Morty Smith' }));
+
+    expect(handleDelete).toHaveBeenCalledWith(morty);
   });
 });
