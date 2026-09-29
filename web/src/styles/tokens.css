@@ -1,0 +1,26 @@
+:root {
+  --font-base: 'Lato', system-ui, sans-serif;
+
+  --color-text-strong: #1a1b1b;
+  --color-text: #575b5b;
+  --color-text-muted: #979b9b;
+  --color-text-disabled: #b1b5b5;
+  --color-text-inverse: #ffffff;
+
+  --color-brand: #2ba193;
+  --color-danger: #b52217;
+  --color-success: #32af04;
+
+  --color-background: #ffffff;
+  --color-border: #d8d9d9;
+  --color-interaction: rgb(0 0 0 / 10%);
+
+  --shadow-raised: 0 0.5px 1px rgb(5 20 18 / 20%), 0 1px 4px rgb(5 20 18 / 15%);
+  --shadow-overlay: 0 2.5px 2.5px rgb(5 20 18 / 15%), 0 5px 7px 4px rgb(5 20 18 / 15%);
+
+  --radius-field: 4px;
+  --radius-button: 8px;
+
+  --page-margin: 40px;
+  --content-width: 1200px;
+}

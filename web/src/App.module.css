@@ -1,0 +1,14 @@
+.page {
+  max-width: calc(var(--content-width) + 2 * var(--page-margin));
+  margin: 0 auto;
+}
+
+.content {
+  padding: 32px var(--page-margin);
+}
+
+@media (max-width: 640px) {
+  .content {
+    padding: 24px 16px;
+  }
+}
