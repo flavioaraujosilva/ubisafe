@@ -95,4 +95,56 @@ describe('createCharacterRepository', () => {
       expect(original[0]!.name).toBe('Rick Sanchez');
     });
   });
+
+  describe('updateName', () => {
+    it('altera o nome e devolve o personagem atualizado', () => {
+      const repository = createCharacterRepository(characters);
+
+      const updated = repository.updateName(2, 'Morty Jr.');
+
+      expect(updated).toMatchObject({ id: 2, name: 'Morty Jr.' });
+      expect(repository.list({ name: 'morty jr', page: 1, limit: 10 }).results).toHaveLength(1);
+    });
+
+    it('retorna undefined quando o personagem não existe', () => {
+      const repository = createCharacterRepository(characters);
+
+      expect(repository.updateName(999, 'Ninguém')).toBeUndefined();
+    });
+
+    it('não altera a lista original recebida', () => {
+      const repository = createCharacterRepository(characters);
+
+      repository.updateName(1, 'Outro Rick');
+
+      expect(characters[0]!.name).toBe('Rick Sanchez');
+    });
+  });
+
+  describe('remove', () => {
+    it('remove o personagem e atualiza o total da listagem', () => {
+      const repository = createCharacterRepository(characters);
+
+      expect(repository.remove(3)).toBe(true);
+
+      const result = repository.list({ page: 1, limit: 10 });
+      expect(result.results.map((p) => p.id)).toEqual([1, 2, 4, 5]);
+      expect(result.info.count).toBe(4);
+    });
+
+    it('retorna false quando o personagem não existe', () => {
+      const repository = createCharacterRepository(characters);
+
+      expect(repository.remove(999)).toBe(false);
+      expect(repository.list({ page: 1, limit: 10 }).info.count).toBe(5);
+    });
+
+    it('não altera a lista original recebida', () => {
+      const repository = createCharacterRepository(characters);
+
+      repository.remove(1);
+
+      expect(characters).toHaveLength(5);
+    });
+  });
 });

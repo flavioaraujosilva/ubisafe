@@ -7,6 +7,8 @@ export function createCharacterRoutes(repository: CharacterRepository) {
   const controller = createCharacterController(repository);
 
   router.get('/', controller.list);
+  router.patch('/:id', controller.update);
+  router.delete('/:id', controller.remove);
 
   return router;
 }

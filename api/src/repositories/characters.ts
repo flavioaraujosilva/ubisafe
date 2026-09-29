@@ -35,7 +35,23 @@ export function createCharacterRepository(seed: Character[]) {
     };
   }
 
-  return { list };
+  function updateName(id: number, name: string): Character | undefined {
+    const character = characters.find((item) => item.id === id);
+    if (!character) return undefined;
+
+    character.name = name;
+    return character;
+  }
+
+  function remove(id: number): boolean {
+    const index = characters.findIndex((item) => item.id === id);
+    if (index === -1) return false;
+
+    characters.splice(index, 1);
+    return true;
+  }
+
+  return { list, updateName, remove };
 }
 
 export type CharacterRepository = ReturnType<typeof createCharacterRepository>;
