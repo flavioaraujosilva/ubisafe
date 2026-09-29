@@ -23,3 +23,12 @@ export async function listCharacters({ name, status, page, limit }: CharacterQue
 
   return data;
 }
+
+export async function updateCharacterName(id: number, name: string) {
+  const { data } = await api.patch<Character>(`/characters/${id}`, { name: name.trim() });
+  return data;
+}
+
+export async function deleteCharacter(id: number) {
+  await api.delete(`/characters/${id}`);
+}
