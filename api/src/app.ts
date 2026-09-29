@@ -1,5 +1,6 @@
 import express from 'express';
 import { initialCharacters } from './data/index.js';
+import { notFoundHandler, errorHandler } from './middlewares/errors.js';
 import { createCharacterRepository, type CharacterRepository } from './repositories/characters.js';
 import { createCharacterRoutes } from './routes/characters.js';
 
@@ -19,6 +20,9 @@ export function createApp({
   });
 
   app.use('/characters', createCharacterRoutes(characterRepository));
+
+  app.use(notFoundHandler);
+  app.use(errorHandler);
 
   return app;
 }
