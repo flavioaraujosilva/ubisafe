@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as service from '../../services/characters';
 import { buildCharacter, renderWithQuery } from '../../test/utils';
@@ -19,7 +20,7 @@ describe('CharacterList', () => {
 
     expect(screen.getByRole('status')).toHaveTextContent('Loading users...');
     expect(await screen.findByRole('cell', { name: 'Rick Sanchez' })).toBeInTheDocument();
-    expect(list).toHaveBeenCalledWith({ page: 1, limit: 15 });
+    expect(list).toHaveBeenCalledWith({ name: '', page: 1, limit: 15 });
   });
 
   it('exibe mensagem de erro quando a API falha', async () => {
@@ -28,5 +29,21 @@ describe('CharacterList', () => {
     renderWithQuery(<CharacterList />);
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not load users.');
+  });
+
+  it('busca novamente com os filtros aplicados', async () => {
+    const list = vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 0, pages: 0, next: null, prev: null },
+      results: [],
+    });
+    renderWithQuery(<CharacterList />);
+    await screen.findByRole('table');
+
+    await userEvent.type(screen.getByLabelText('Name'), 'rick');
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Status' }), 'Alive');
+
+    await vi.waitFor(() => {
+      expect(list).toHaveBeenLastCalledWith({ name: 'rick', status: 'Alive', page: 1, limit: 15 });
+    });
   });
 });
