@@ -5,10 +5,11 @@ import styles from './CharacterTable.module.css';
 
 type CharacterTableProps = {
   characters: Character[];
+  onEdit: (character: Character) => void;
   onDelete: (character: Character) => void;
 };
 
-export function CharacterTable({ characters, onDelete }: CharacterTableProps) {
+export function CharacterTable({ characters, onEdit, onDelete }: CharacterTableProps) {
   return (
     <div className={styles.scroll} role="region" aria-label="Users table" tabIndex={0}>
       <table className={styles.table}>
@@ -24,7 +25,17 @@ export function CharacterTable({ characters, onDelete }: CharacterTableProps) {
         </thead>
         <tbody>
           {characters.map((character) => (
-            <tr key={character.id}>
+            <tr
+              key={character.id}
+              className={styles.row}
+              tabIndex={0}
+              onDoubleClick={() => onEdit(character)}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' || event.target !== event.currentTarget) return;
+                event.preventDefault();
+                onEdit(character);
+              }}
+            >
               <td title={character.name}>{character.name}</td>
               <td>{character.status}</td>
               <td>{character.species}</td>

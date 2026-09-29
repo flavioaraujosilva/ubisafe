@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { ToastProvider } from '../components/Toast/ToastProvider';
 import type { Character } from '../types/character';
 
@@ -9,11 +9,15 @@ export function renderWithQuery(element: ReactElement) {
     defaultOptions: { queries: { retry: false } },
   });
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>{element}</ToastProvider>
-    </QueryClientProvider>,
-  );
+  function Providers({ children }: { children: ReactNode }) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>{children}</ToastProvider>
+      </QueryClientProvider>
+    );
+  }
+
+  return render(element, { wrapper: Providers });
 }
 
 export function buildCharacter(input: Partial<Character> & Pick<Character, 'id' | 'name'>): Character {

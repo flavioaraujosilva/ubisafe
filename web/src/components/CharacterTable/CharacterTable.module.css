@@ -39,8 +39,18 @@
   color: var(--color-text);
 }
 
-.table tbody tr:hover {
+.row {
+  cursor: pointer;
+}
+
+.row:hover,
+.row:focus-visible {
   background: var(--color-interaction);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: -2px;
 }
 
 .table .lastCell {
@@ -67,7 +77,8 @@
   transform: translateY(-50%);
 }
 
-.table tbody tr:hover .deleteButton,
+.row:hover .deleteButton,
+.row:focus-visible .deleteButton,
 .deleteButton:focus-visible {
   opacity: 1;
 }

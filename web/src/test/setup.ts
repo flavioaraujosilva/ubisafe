@@ -4,6 +4,7 @@ import { afterEach } from 'vitest';
 
 HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
   this.open = true;
+  this.querySelector<HTMLElement>('button, input, select, textarea, [tabindex]')?.focus();
 };
 HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
   this.open = false;

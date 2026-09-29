@@ -122,4 +122,41 @@ describe('CharacterList', () => {
     expect(list).toHaveBeenLastCalledWith({ name: '', page: 2, limit: 15 });
     expect(screen.getByRole('button', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page');
   });
+
+  it('abre a edição com duplo clique e recarrega a lista depois de salvar', async () => {
+    const list = vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 1, pages: 1, next: null, prev: null },
+      results: [buildCharacter({ id: 1, name: 'Rick Sanchez' })],
+    });
+    const updateSpy = vi
+      .spyOn(service, 'updateCharacterName')
+      .mockResolvedValue(buildCharacter({ id: 1, name: 'Rick C-137' }));
+    renderWithQuery(<CharacterList />);
+
+    await userEvent.dblClick(await screen.findByRole('cell', { name: 'Rick Sanchez' }));
+    const input = screen.getByRole('textbox', { name: 'Name' });
+    await userEvent.clear(input);
+    await userEvent.type(input, 'Rick C-137{Enter}');
+
+    expect(await screen.findByRole('status')).toHaveTextContent('User successfully edited.');
+    expect(updateSpy).toHaveBeenCalledWith(1, 'Rick C-137');
+    await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2));
+  });
+
+  it('abre a edição com Enter na linha sem enviar o formulário junto', async () => {
+    vi.spyOn(service, 'listCharacters').mockResolvedValue({
+      info: { count: 1, pages: 1, next: null, prev: null },
+      results: [buildCharacter({ id: 1, name: 'Rick Sanchez' })],
+    });
+    const updateSpy = vi.spyOn(service, 'updateCharacterName');
+    renderWithQuery(<CharacterList />);
+
+    const row = (await screen.findByRole('cell', { name: 'Rick Sanchez' })).closest('tr')!;
+    row.focus();
+    await userEvent.keyboard('{Enter}');
+
+    expect(screen.getByRole('dialog', { name: 'Edit User' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Rick Sanchez');
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
 });
