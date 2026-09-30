@@ -22,6 +22,7 @@ describe('ListFooter', () => {
     renderFooter();
 
     expect(screen.getByText(/Showing results/)).toHaveTextContent('Showing results 46-60 of 6748');
+    expect(screen.getByText('46-60').tagName).toBe('STRONG');
     expect(screen.getByRole('button', { name: 'Page 4' })).toHaveAttribute('aria-current', 'page');
   });
 

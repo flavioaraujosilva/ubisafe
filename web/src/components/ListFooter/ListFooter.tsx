@@ -27,9 +27,12 @@ export function ListFooter({
     <div className={styles.footer}>
       <p className={styles.results} aria-live="polite">
         Showing results{' '}
-        <strong>
-          {start}-{end} of {totalItems}
-        </strong>
+        <span className={styles.range}>
+          <strong>
+            {start}-{end}
+          </strong>{' '}
+          of {totalItems}
+        </span>
       </p>
 
       <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
