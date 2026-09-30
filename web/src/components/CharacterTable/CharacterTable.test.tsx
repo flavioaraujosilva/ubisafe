@@ -87,4 +87,19 @@ describe('CharacterTable', () => {
     expect(handleDelete).toHaveBeenCalledOnce();
     expect(handleEdit).not.toHaveBeenCalled();
   });
+
+  it('destaca a linha do personagem ativo', () => {
+    render(
+      <CharacterTable
+        characters={[buildCharacter({ id: 1, name: 'Rick Sanchez' }), buildCharacter({ id: 2, name: 'Morty Smith' })]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        activeCharacterId={2}
+      />,
+    );
+
+    const [, rick, morty] = screen.getAllByRole('row');
+    expect(morty!.className).toMatch(/active/);
+    expect(rick!.className).not.toMatch(/active/);
+  });
 });

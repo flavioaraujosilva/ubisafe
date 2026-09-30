@@ -8,10 +8,11 @@ type CharacterTableProps = {
   characters: Character[];
   onEdit: (character: Character) => void;
   onDelete: (character: Character) => void;
+  activeCharacterId?: number;
   ref?: Ref<HTMLDivElement>;
 };
 
-export function CharacterTable({ characters, onEdit, onDelete, ref }: CharacterTableProps) {
+export function CharacterTable({ characters, onEdit, onDelete, activeCharacterId, ref }: CharacterTableProps) {
   return (
     <div ref={ref} className={styles.scroll} role="region" aria-label="Users table" tabIndex={0}>
       <table className={styles.table}>
@@ -29,7 +30,7 @@ export function CharacterTable({ characters, onEdit, onDelete, ref }: CharacterT
           {characters.map((character) => (
             <tr
               key={character.id}
-              className={styles.row}
+              className={character.id === activeCharacterId ? `${styles.row} ${styles.active}` : styles.row}
               tabIndex={0}
               onDoubleClick={() => onEdit(character)}
               onKeyDown={(event) => {

@@ -72,6 +72,7 @@ export function CharacterList() {
               characters={data.results}
               onEdit={setCharacterToEdit}
               onDelete={setCharacterToDelete}
+              activeCharacterId={(characterToEdit ?? characterToDelete)?.id}
             />
           </div>
         )}
