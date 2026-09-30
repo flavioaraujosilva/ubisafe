@@ -41,7 +41,7 @@ export function Modal({ isOpen, title, icon, actions, onClose, children }: Modal
       {isOpen && (
         <div className={styles.content}>
           <h2 id={titleId} className={styles.title}>
-            {icon}
+            {icon && <span className={styles.icon}>{icon}</span>}
             {title}
           </h2>
           <div className={styles.body}>{children}</div>

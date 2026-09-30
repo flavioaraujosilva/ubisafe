@@ -15,8 +15,8 @@ describe('Modal', () => {
   it('abre como diálogo nomeado pelo título', () => {
     renderModal();
 
-    const dialogRef = screen.getByRole('dialog', { name: 'Delete User' });
-    expect(dialogRef).toHaveAttribute('open');
+    const dialog = screen.getByRole('dialog', { name: 'Delete User' });
+    expect(dialog).toHaveAttribute('open');
     expect(screen.getByText('Are you sure?')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
   });
@@ -57,6 +57,15 @@ describe('Modal', () => {
     expect(handleClose).not.toHaveBeenCalled();
 
     await userEvent.click(screen.getByRole('dialog'));
+    expect(handleClose).toHaveBeenCalledOnce();
+  });
+
+  it('avisa o fechamento quando o navegador fecha o diálogo aberto', () => {
+    const handleClose = vi.fn();
+    renderModal({ onClose: handleClose });
+
+    screen.getByRole('dialog').dispatchEvent(new Event('close'));
+
     expect(handleClose).toHaveBeenCalledOnce();
   });
 });

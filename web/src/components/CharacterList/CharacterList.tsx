@@ -40,45 +40,53 @@ export function CharacterList() {
     setPage(1);
   }
 
-  return (
-    <>
-      <CharacterFilters onFilter={handleFilter} />
+  const hasResults = !isError && data !== undefined && data.info.count > 0;
 
-      {isPending ? (
-        <div role="status" className={styles.message}>
-          <span className={styles.spinner} aria-hidden="true" />
-          <span>Loading users...</span>
-        </div>
-      ) : isError ? (
-        <div role="alert" className={styles.message}>
-          <strong>Could not load users.</strong>
-          <span>Check your connection and try again.</span>
-          <Button className={styles.retry} onClick={() => refetch()} disabled={isFetching}>
-            Try again
-          </Button>
-        </div>
-      ) : data.info.count === 0 ? (
-        <div role="status" className={styles.message}>
-          <strong>No users found.</strong>
-          <span>Try another name or status.</span>
-        </div>
-      ) : (
-        <div className={styles.results} aria-busy={isPlaceholderData}>
-          <CharacterTable
-            ref={tableRef}
-            characters={data.results}
-            onEdit={setCharacterToEdit}
-            onDelete={setCharacterToDelete}
-          />
-          <ListFooter
-            currentPage={page}
-            totalPages={data.info.pages}
-            totalItems={data.info.count}
-            pageSize={pageSize}
-            onPageChange={setPage}
-            onPageSizeChange={changePageSize}
-          />
-        </div>
+  return (
+    <div className={styles.list}>
+      <div className={styles.scrollArea}>
+        <CharacterFilters onFilter={handleFilter} />
+
+        {isPending ? (
+          <div role="status" className={styles.message}>
+            <span className={styles.spinner} aria-hidden="true" />
+            <span>Loading users...</span>
+          </div>
+        ) : isError ? (
+          <div role="alert" className={styles.message}>
+            <strong>Could not load users.</strong>
+            <span>Check your connection and try again.</span>
+            <Button className={styles.retry} onClick={() => refetch()} disabled={isFetching}>
+              Try again
+            </Button>
+          </div>
+        ) : !hasResults ? (
+          <div role="status" className={styles.message}>
+            <strong>No users found.</strong>
+            <span>Try another name or status.</span>
+          </div>
+        ) : (
+          <div className={styles.results} aria-busy={isPlaceholderData}>
+            <CharacterTable
+              ref={tableRef}
+              characters={data.results}
+              onEdit={setCharacterToEdit}
+              onDelete={setCharacterToDelete}
+              activeCharacterId={(characterToEdit ?? characterToDelete)?.id}
+            />
+          </div>
+        )}
+      </div>
+
+      {hasResults && (
+        <ListFooter
+          currentPage={page}
+          totalPages={data.info.pages}
+          totalItems={data.info.count}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={changePageSize}
+        />
       )}
 
       <EditCharacterModal character={characterToEdit} onClose={() => setCharacterToEdit(null)} />
@@ -89,6 +97,6 @@ export function CharacterList() {
           focusTableAfterDelete.current = true;
         }}
       />
-    </>
+    </div>
   );
 }

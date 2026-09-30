@@ -4,7 +4,6 @@ import type { Character } from '../../types/character';
 import { Button } from '../Button/Button';
 import { WarningIcon } from '../Icons/Icons';
 import { Modal } from '../Modal/Modal';
-import styles from './DeleteCharacterModal.module.css';
 
 type DeleteCharacterModalProps = {
   character: Character | null;
@@ -33,7 +32,7 @@ export function DeleteCharacterModal({ character, onClose, onDeleted }: DeleteCh
     <Modal
       isOpen={character !== null}
       title="Delete User"
-      icon={<span className={styles.icon}><WarningIcon /></span>}
+      icon={<WarningIcon />}
       onClose={onClose}
       actions={
         <>

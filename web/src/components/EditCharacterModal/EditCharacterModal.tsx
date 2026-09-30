@@ -3,7 +3,7 @@ import { useUpdateCharacterName } from '../../hooks/useCharacterMutations';
 import { useToast } from '../../hooks/useToast';
 import type { Character } from '../../types/character';
 import { Button } from '../Button/Button';
-import { SearchIcon } from '../Icons/Icons';
+import { SearchIcon, WarningIcon } from '../Icons/Icons';
 import { Modal } from '../Modal/Modal';
 import styles from './EditCharacterModal.module.css';
 
@@ -44,6 +44,7 @@ export function EditCharacterModal({ character, onClose }: EditCharacterModalPro
     <Modal
       isOpen={character !== null}
       title="Edit User"
+      icon={<WarningIcon />}
       onClose={onClose}
       actions={
         <>

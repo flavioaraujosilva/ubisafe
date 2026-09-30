@@ -1,4 +1,5 @@
 import { getVisiblePages } from '../../utils/pagination';
+import { ChevronLeftIcon, ChevronRightIcon } from '../Icons/Icons';
 import styles from './Pagination.module.css';
 
 type PaginationProps = {
@@ -24,7 +25,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         disabled={isFirst}
         onClick={() => onPageChange(currentPage - 1)}
       >
-        ‹
+        <ChevronLeftIcon />
       </button>
 
       <ul className={styles.pages}>
@@ -53,7 +54,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         disabled={isLast}
         onClick={() => onPageChange(currentPage + 1)}
       >
-        ›
+        <ChevronRightIcon />
       </button>
       <button type="button" className={styles.edge} disabled={isLast} onClick={() => onPageChange(totalPages)}>
         Last

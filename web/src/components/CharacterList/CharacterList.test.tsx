@@ -96,6 +96,7 @@ describe('CharacterList', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'Delete Rick Sanchez' }));
     expect(screen.getByRole('dialog', { name: 'Delete User' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Rick Sanchez' }).closest('tr')!.className).toMatch(/active/);
 
     await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
 

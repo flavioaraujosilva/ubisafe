@@ -3,13 +3,19 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 24px;
+  padding: 32px var(--page-margin) 40px;
+  background: var(--color-background);
 }
 
 .results {
   margin: 0;
   font-size: 14px;
+  line-height: 1.2;
   color: var(--color-text-muted);
+}
+
+.range {
+  display: block;
 }
 
 .results strong {
@@ -51,5 +57,6 @@
 @media (max-width: 640px) {
   .footer {
     flex-direction: column;
+    padding: 24px 0 0;
   }
 }

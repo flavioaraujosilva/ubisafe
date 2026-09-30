@@ -1,13 +1,24 @@
 .page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
   max-width: calc(var(--content-width) + 2 * var(--page-margin));
   margin: 0 auto;
 }
 
 .content {
-  padding: 32px var(--page-margin);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
 }
 
 @media (max-width: 640px) {
+  .page {
+    height: auto;
+  }
+
   .content {
     padding: 24px 16px;
   }

@@ -44,7 +44,8 @@
 }
 
 .row:hover,
-.row:focus-visible {
+.row:focus-visible,
+.row.active {
   background: var(--color-interaction);
 }
 
@@ -79,6 +80,7 @@
 
 .row:hover .deleteButton,
 .row:focus-visible .deleteButton,
+.row.active .deleteButton,
 .deleteButton:focus-visible {
   opacity: 1;
 }

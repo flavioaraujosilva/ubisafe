@@ -1,3 +1,17 @@
+.list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.scrollArea {
+  flex: 1;
+  min-height: 0;
+  padding: 0 var(--page-margin);
+  overflow-y: auto;
+}
+
 .message {
   display: flex;
   flex-direction: column;
@@ -51,5 +65,12 @@
 
   .results {
     transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .scrollArea {
+    padding: 0;
+    overflow-y: visible;
   }
 }
