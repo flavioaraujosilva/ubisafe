@@ -3,7 +3,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 24px;
+  padding: 32px var(--page-margin) 40px;
+  background: var(--color-background);
 }
 
 .results {
@@ -51,5 +52,6 @@
 @media (max-width: 640px) {
   .footer {
     flex-direction: column;
+    padding: 24px 0 0;
   }
 }
